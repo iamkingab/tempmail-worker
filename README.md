@@ -174,3 +174,17 @@ Cloudflare 免费额度：
 │   └── postal-mime/               # MIME 解析库（已内置，可直接用）
 └── README.md
 ```
+
+## 关于作者
+
+这个项目在公众号 **「飞来飞去的安伯伯」** 首次公开。
+
+公众号会写一些自建服务、白嫖 Cloudflare 免费额度、以及踩坑记录。
+有问题或想聊，欢迎在公众号留言。
+
+- 公众号：**飞来飞去的安伯伯**
+- GitHub：[@iamkingab](https://github.com/iamkingab)
+
+## 许可
+
+MIT License —— 随便用，随便改，改成你自己的拿去用就好。
