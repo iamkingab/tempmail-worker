@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>我给自己搭了个一次性邮箱</title></head><body><div style="max-width:680px;margin:0 auto;padding:20px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;background:#fff;"><h1 style="font-size:22px;font-weight:bold;text-align:center;margin:0 0 0.5em;line-height:1.5;color:#222;">我给自己搭了个一次性邮箱：不用注册、免费、10 分钟自动销毁</h1>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">先说个场景，你肯定遇到过。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">某个网站要你留邮箱才能看内容，某个 App 要邮箱验证才能试用，某个论坛注册要收验证码。你留了自己的常用邮箱，然后接下来三个月，垃圾邮件没停过。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">我一开始的办法是忍着。后来用网上的临时邮箱网站，能用，但问题不少。一是很多是公共收件箱，你的验证码理论上别人也能刷到；二是这类热门域名被成千上万人用过，不少网站直接把它拉黑了，你填了地址对方根本不给发信。所以我干脆自己搭了一个。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">用的是自己的域名，不会被拉黑。地址只有我知道，没人能看。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">整个过程跑在 Cloudflare 免费额度上，没花一分钱，也没租服务器。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">方法我完整写下来。你只要有 Cloudflare 账号、一个域名，加上会用 AI 帮你写代码，半小时能搞定。</p>
+<p style="text-align:center;margin:2em 0;color:#bbb;font-size:14px;letter-spacing:6px;">· · ·</p>
+<div style="background:#f7f7f7;border-left:4px solid #e74c3c;padding:12px 16px;margin:2em 0 1em;"><p style="margin:0;font-size:18px;font-weight:bold;color:#e74c3c;">01｜先看效果</p></div>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">打开我的地址，一个输入框让你填邮箱前缀。填 <code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;font-family:Consolas,Monaco,monospace;font-size:14px;color:#c7254e;">test</code>、<code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;font-family:Consolas,Monaco,monospace;font-size:14px;color:#c7254e;">abc</code>、<code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;font-family:Consolas,Monaco,monospace;font-size:14px;color:#c7254e;">vip</code>，随便什么都行——<strong style="color:#c0392b;">不需要注册，也不存在&quot;这个用户名被占用&quot;这回事</strong>。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">选好前缀和域名，它把完整地址给你：<code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;font-family:Consolas,Monaco,monospace;font-size:14px;color:#c7254e;">test@你的域名</code>。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">拿着这个地址去任何网站注册。验证码邮件到了，页面上刷新一下，<strong style="color:#c0392b;">验证码已经自动提取出来了，绿色框里，一键复制</strong>。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">用完关掉。10 分钟后邮件自动销毁。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">还能多开：<code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;font-family:Consolas,Monaco,monospace;font-size:14px;color:#c7254e;">a@你的域名</code>、<code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;font-family:Consolas,Monaco,monospace;font-size:14px;color:#c7254e;">b@你的域名</code>、<code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;font-family:Consolas,Monaco,monospace;font-size:14px;color:#c7254e;">c@你的域名</code> 同时收，互不干扰。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">有个细节我比较喜欢，页面每 15 秒自己刷一次。所以不用一直盯着点，验证码到了自己就冒出来。</p>
+<p style="text-align:center;margin:2em 0;color:#bbb;font-size:14px;letter-spacing:6px;">· · ·</p>
+<div style="background:#f7f7f7;border-left:4px solid #e67e22;padding:12px 16px;margin:2em 0 1em;"><p style="margin:0;font-size:18px;font-weight:bold;color:#e67e22;">02｜现成的临时邮箱网站，绕不开三个问题</p></div>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">我都试过。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;"><strong style="color:#c0392b;">隐私。</strong> 大部分免费临时邮箱是公共收件箱，谁都能刷。有些更离谱——不设密码，谁先访问谁就是主人，你填的地址别人正好也在用，邮件混在一起。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;"><strong style="color:#c0392b;">拉黑。</strong> 那些热门域名被用了太多次，网站一看是临时邮箱域名，直接不发信。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;"><strong style="color:#c0392b;">时长。</strong> 很多网站限制你只能收 10 分钟、20 分钟。填个注册表单磨蹭一会儿，过期了。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">用自己的域名，这三个问题一起消失。域名就你在用，不会被拉黑；页面有密码，只有你能进；存活时间自己定。</p>
+<p style="text-align:center;margin:2em 0;color:#bbb;font-size:14px;letter-spacing:6px;">· · ·</p>
+<div style="background:#f7f7f7;border-left:4px solid #3498db;padding:12px 16px;margin:2em 0 1em;"><p style="margin:0;font-size:18px;font-weight:bold;color:#3498db;">03｜技术上是怎么回事</p></div>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">说白了三件事。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;"><strong style="color:#c0392b;">让发到「你的域名」的邮件，转给一段程序处理。</strong></p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">Cloudflare 有个免费功能叫 Email Routing，本来是把你域名的邮件转发到某个真实邮箱。但它也支持转发给 Worker——Worker 就是 Cloudflare 上跑的一小段代码，免费额度每天 10 万次请求。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">链路就成了：别人发信给 <code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;font-family:Consolas,Monaco,monospace;font-size:14px;color:#c7254e;">test@你的域名</code> → Cloudflare 收到 → 交给我的 Worker → 存起来。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;"><strong style="color:#c0392b;">存哪？存 KV。</strong></p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">KV 是 Cloudflare 的键值存储，也免费。我分了 两层：索引层放&quot;这个邮箱收到了哪些邮件&quot;的摘要，正文层放每封邮件的完整内容。列邮件时只读一个 key，快，也省额度。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;"><strong style="color:#c0392b;">同一段 Worker 顺便当网站服务器。</strong></p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">Worker 不只处理邮件，还能响应网页请求。所以收信和网页界面，一个 Worker 全包了，不用再部署一个网站。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">三件事一段代码干完。这就是为什么成本是 0——没有服务器，全是免费额度。</p>
+<p style="text-align:center;margin:2em 0;color:#bbb;font-size:14px;letter-spacing:6px;">· · ·</p>
+<div style="background:#f7f7f7;border-left:4px solid #9b59b6;padding:12px 16px;margin:2em 0 1em;"><p style="margin:0;font-size:18px;font-weight:bold;color:#9b59b6;">04｜验证码怎么自动抓出来</p></div>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">这个功能看着简单，我踩了两轮。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;"><strong style="color:#c0392b;">第一轮，直接从邮件源码里搜数字。</strong></p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">抓出来一堆乱七八糟的东西。邮件源码里除了正文，还有 MIME 头信息、服务商签名、退订链接。我在一封测试邮件里搜出来的&quot;验证码&quot;是 <code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;font-family:Consolas,Monaco,monospace;font-size:14px;color:#c7254e;">are-ema</code>——那是 <code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;font-family:Consolas,Monaco,monospace;font-size:14px;color:#c7254e;">Coremail</code> 这个词被规则切错了。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;"><strong style="color:#c0392b;">第二轮，中文主题显示成乱码。</strong></p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">邮件主题带中文的话，源码里长这样：</p>
+<pre style="background:#1e293b;color:#e2e8f0;padding:14px 16px;border-radius:8px;overflow-x:auto;font-family:Consolas,Monaco,monospace;font-size:13px;line-height:1.7;margin:1.2em 0;white-space:pre-wrap;word-break:break-all;">Subject: =?utf-8?B?44CQ6aqM6K+B56CB44CR...</pre>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">这是 MIME 编码。直接显示，用户看到的就是这串东西，压根不知道邮件说啥。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;"><strong style="color:#c0392b;">正确做法是先解码，再匹配。</strong></p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">用 postal-mime 这个库把原始邮件解开，主题还原成「【验证码】您的验证码是 482139」，正文还原成正常文本。<strong style="color:#c0392b;">然后在这份干净内容里</strong>去找验证码。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">匹配规则分了几层优先级：先找中文「验证码」后面跟的 4-8 位字符，这个最准；再找英文 <code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;font-family:Consolas,Monaco,monospace;font-size:14px;color:#c7254e;">code</code>、<code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;font-family:Consolas,Monaco,monospace;font-size:14px;color:#c7254e;">verification code</code>；最后才用&quot;孤立的 6 位数字&quot;兜底。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">改完再测，同一个主题从乱码变成了「【验证码】您的验证码是 482139」，验证码从错的变成了对的。这种问题你不真发一封信测，根本发现不了。</p>
+<p style="text-align:center;margin:2em 0;color:#bbb;font-size:14px;letter-spacing:6px;">· · ·</p>
+<div style="background:#f7f7f7;border-left:4px solid #27ae60;padding:12px 16px;margin:2em 0 1em;"><p style="margin:0;font-size:18px;font-weight:bold;color:#27ae60;">05｜一个隐蔽的坑：部署会清空绑定</p></div>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">Worker 要读 KV，得先&quot;绑定&quot;——配置里声明&quot;这个 Worker 能用这个 KV&quot;。用官方工具 <code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;font-family:Consolas,Monaco,monospace;font-size:14px;color:#c7254e;">wrangler</code> 部署，配置写在文件里，一般没事。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">但我当时是直接调 Cloudflare 的 REST API 部署的。第一次部署完，网页能开，<strong style="color:#c0392b;">所有读邮件的接口全 500</strong>，错误码 1101。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">排查半天，原因是：<strong style="color:#c0392b;">手动调 API 时，metadata 里没带 bindings 字段，Cloudflare 会把原有绑定清空。</strong> 代码没变，KV 也没变，就是那根线被拔了。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">修法是在部署的 metadata 里把绑定带上：</p>
+<pre style="background:#1e293b;color:#e2e8f0;padding:14px 16px;border-radius:8px;overflow-x:auto;font-family:Consolas,Monaco,monospace;font-size:13px;line-height:1.7;margin:1.2em 0;white-space:pre-wrap;word-break:break-all;">{
+  &quot;main_module&quot;: &quot;worker.mjs&quot;,
+  &quot;bindings&quot;: [
+    { &quot;type&quot;: &quot;kv_namespace&quot;, &quot;name&quot;: &quot;MAIL_KV&quot;, &quot;namespace_id&quot;: &quot;你的KV-id&quot; }
+  ]
+}</pre>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">用 <code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;font-family:Consolas,Monaco,monospace;font-size:14px;color:#c7254e;">wrangler</code> 的读者基本遇不到。但你要是也手搓 API，记着这条。</p>
+<p style="text-align:center;margin:2em 0;color:#bbb;font-size:14px;letter-spacing:6px;">· · ·</p>
+<div style="background:#f7f7f7;border-left:4px solid #333333;padding:12px 16px;margin:2em 0 1em;"><p style="margin:0;font-size:18px;font-weight:bold;color:#333333;">06｜安全上做了几件事</p></div>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">页面挂在公网，有几个地方必须处理。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;"><strong style="color:#c0392b;">登录。</strong> 页面不是打开就能用，要先过账号密码。会话用签名 Cookie——服务器拿密钥加过期时间算个签名，下次请求带签名来验，而不是明文存密码。有效期 7 天。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;"><strong style="color:#c0392b;">收件白名单。</strong> 这是我最推荐加的一条。规则很硬：<strong style="color:#c0392b;">只有发到我的域名的邮件才处理，其他一律丢掉。</strong></p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">为什么重要？KV 每天写入额度是 1000 次。如果有人拿你的域名当靶子狂轰垃圾邮件，额度很快见底，你正常该收的验证码反而收不到了。加了白名单，垃圾邮件在写 KV 之前就被拦掉，<strong style="color:#c0392b;">零消耗</strong>。被丢的邮件会记一条日志，谁发的、发到哪，方便以后查。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;"><strong style="color:#c0392b;">密码别太短。</strong> 页面公网可访问，密码就是唯一的门。我用的是随机密码。真担心暴力破解，可以再加&quot;连续错 5 次锁 10 分钟&quot;。</p>
+<p style="text-align:center;margin:2em 0;color:#bbb;font-size:14px;letter-spacing:6px;">· · ·</p>
+<div style="background:#f7f7f7;border-left:4px solid #e74c3c;padding:12px 16px;margin:2em 0 1em;"><p style="margin:0;font-size:18px;font-weight:bold;color:#e74c3c;">07｜你需要准备什么</p></div>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">Cloudflare 账号，免费版够。一个域名，必须托管在 Cloudflare（NS 记录切过去）。Node.js 用来打包代码，v18 以上。加上会用 AI 工具——不会写代码也行，把需求说清楚让它写。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">域名是唯一有门槛的。还没买的话去任何注册商买一个，最便宜一年几十块，然后把 NS 记录改到 Cloudflare。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;"><strong style="color:#c0392b;">没有域名行不行？</strong> 不行。Cloudflare 的收信必须绑自己的域名——这也是它比公共临时邮箱强的地方。</p>
+<p style="text-align:center;margin:2em 0;color:#bbb;font-size:14px;letter-spacing:6px;">· · ·</p>
+<div style="background:#f7f7f7;border-left:4px solid #e67e22;padding:12px 16px;margin:2em 0 1em;"><p style="margin:0;font-size:18px;font-weight:bold;color:#e67e22;">08｜部署五步</p></div>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">完整代码和说明我整理好了，照着做。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;"><strong style="color:#c0392b;">开 Email Routing。</strong> Cloudflare 后台选中域名 → 左侧 Email → Email Routing → 点 Enable。它让你加 MX 和 TXT 记录，<strong style="color:#c0392b;">点自动添加就行</strong>，不用手填。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;"><strong style="color:#c0392b;">建 KV。</strong> 命令行一句：</p>
+<pre style="background:#1e293b;color:#e2e8f0;padding:14px 16px;border-radius:8px;overflow-x:auto;font-family:Consolas,Monaco,monospace;font-size:13px;line-height:1.7;margin:1.2em 0;white-space:pre-wrap;word-break:break-all;">npx wrangler kv namespace create MAIL_KV</pre>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">它给你一个 id，记下来。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;"><strong style="color:#c0392b;">改配置、部署。</strong> 打开代码文件，改开头几行：</p>
+<pre style="background:#1e293b;color:#e2e8f0;padding:14px 16px;border-radius:8px;overflow-x:auto;font-family:Consolas,Monaco,monospace;font-size:13px;line-height:1.7;margin:1.2em 0;white-space:pre-wrap;word-break:break-all;">const CONFIG = {
+  ALLOWED_RECIPIENTS: [&#x27;@your-domain.com&#x27;],   // 收件白名单
+  DOMAINS: [&#x27;your-domain.com&#x27;],                // 网页可选域名
+  WEB_USERNAME: &#x27;admin&#x27;,                        // 登录账号
+  WEB_PASSWORD: &#x27;换成你的强密码&#x27;,                // 登录密码
+  MAIL_TTL: 600,                                // 邮件存活 600 秒 = 10 分钟
+};</pre>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">然后：</p>
+<pre style="background:#1e293b;color:#e2e8f0;padding:14px 16px;border-radius:8px;overflow-x:auto;font-family:Consolas,Monaco,monospace;font-size:13px;line-height:1.7;margin:1.2em 0;white-space:pre-wrap;word-break:break-all;">npx wrangler deploy</pre>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;"><strong style="color:#c0392b;">绑域名 + 配收信路由。</strong> 这步有两小步，<strong style="color:#c0392b;">第二小步最容易漏</strong>。先把 Worker 挂到网页地址（比如 <code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;font-family:Consolas,Monaco,monospace;font-size:14px;color:#c7254e;">mail.你的域名</code>）；然后回 Email Routing → Routing rules → <strong style="color:#c0392b;">Catch-all address → Edit → Action 选「Send to a Worker」→ 选中你的 Worker → 保存</strong>。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">只做前一小步、漏了后面，<strong style="color:#c0392b;">网页能开，但一封邮件都收不到</strong>。卡在这儿的人不少。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;"><strong style="color:#c0392b;">验证。</strong> 登录先试通：</p>
+<pre style="background:#1e293b;color:#e2e8f0;padding:14px 16px;border-radius:8px;overflow-x:auto;font-family:Consolas,Monaco,monospace;font-size:13px;line-height:1.7;margin:1.2em 0;white-space:pre-wrap;word-break:break-all;">curl -i -X POST https://mail.你的域名/__auth \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#x27;{&quot;username&quot;:&quot;admin&quot;,&quot;password&quot;:&quot;你的密码&quot;}&#x27;</pre>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">拿到 Cookie 后，随便发一封信到 <code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;font-family:Consolas,Monaco,monospace;font-size:14px;color:#c7254e;">test@你的域名</code>，再查：</p>
+<pre style="background:#1e293b;color:#e2e8f0;padding:14px 16px;border-radius:8px;overflow-x:auto;font-family:Consolas,Monaco,monospace;font-size:13px;line-height:1.7;margin:1.2em 0;white-space:pre-wrap;word-break:break-all;">curl -H &quot;Cookie: tm_session=上面的token&quot; \
+  https://mail.你的域名/api/check/test</pre>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;"><strong style="color:#c0392b;">接口路径是 <code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;font-family:Consolas,Monaco,monospace;font-size:14px;color:#c7254e;">/api/check/前缀</code>，不是完整邮箱地址</strong>——我写过一版错的，返回 <code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;font-family:Consolas,Monaco,monospace;font-size:14px;color:#c7254e;">invalid path</code>，白折腾一会儿。</p>
+<p style="text-align:center;margin:2em 0;color:#bbb;font-size:14px;letter-spacing:6px;">· · ·</p>
+<div style="background:#f7f7f7;border-left:4px solid #3498db;padding:12px 16px;margin:2em 0 1em;"><p style="margin:0;font-size:18px;font-weight:bold;color:#3498db;">09｜费用</p></div>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">Workers 每天 10 万次请求，KV 每天读 10 万次、写 1000 次。个人用连零头都占不到，<strong style="color:#c0392b;">0 元</strong>。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">花钱的只有域名，一年几十块，而它你还能干别的用。</p>
+<p style="text-align:center;margin:2em 0;color:#bbb;font-size:14px;letter-spacing:6px;">· · ·</p>
+<div style="background:#f7f7f7;border-left:4px solid #9b59b6;padding:12px 16px;margin:2em 0 1em;"><p style="margin:0;font-size:18px;font-weight:bold;color:#9b59b6;">10｜最后</p></div>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">搭之前我觉得这事挺麻烦，毕竟牵扯邮件、DNS、存储好几块。真做下来，Cloudflare 把最难的部分都封好了，剩下的是把它拼起来。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">花时间的不是写代码，是踩坑：验证码抓错、中文乱码、部署后绑定被清空、API 路径写错、catch-all 忘配。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">这些我都在文档里标了现象和原因。你照着走，应该比我第一次快很多。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">代码和完整说明：<strong style="color:#c0392b;"><a href="https://github.com/你的仓库" style="color:#3498db;text-decoration:none;border-bottom:1px solid #3498db;">https://github.com/你的仓库</a></strong></p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">两个地方你可以按自己情况改。邮件存活时间我设了 10 分钟，收验证码够用；要收更重要的东西就改成 1 小时——动 <code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;font-family:Consolas,Monaco,monospace;font-size:14px;color:#c7254e;">MAIL_TTL</code> 那个数字。域名也不止一个，我现在挂了两个，其实还能加，都塞进 <code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;font-family:Consolas,Monaco,monospace;font-size:14px;color:#c7254e;">DOMAINS</code> 数组，网页上会出现下拉框让你选。</p>
+<p style="margin:1em 0;text-indent:2em;line-height:2;font-size:16px;color:#333;">折腾完最大的感受：<strong style="color:#c0392b;">有些东西看着要花钱要租服务器，其实免费额度就够，只是没人把怎么拼起来写清楚。</strong> 这篇算补个空缺。</p>
+<p style="text-align:center;margin:2.5em 0 1em;color:#bbb;font-size:13px;">— 全文完 —</p></div></body></html>

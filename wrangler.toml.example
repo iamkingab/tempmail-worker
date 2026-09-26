@@ -1,0 +1,22 @@
+# Cloudflare Worker 一次性邮箱 —— wrangler 配置示例
+#
+# 用法：
+#   1. 复制本文件为 wrangler.toml
+#   2. 把 your-domain.com 换成你的域名
+#   3. 把 KV id 换成 `npx wrangler kv namespace create MAIL_KV` 输出的 id
+#   4. npx wrangler deploy
+
+name = "tempmail-worker"
+main = "worker.js"
+compatibility_date = "2024-09-23"
+
+# KV 存储：邮件和索引都存在这里
+[[kv_namespaces]]
+binding = "MAIL_KV"
+id = "把这里换成你的 KV namespace id"
+
+# 自定义域名（网页访问地址）
+# 需要先把域名托管在 Cloudflare，并且该域名已开通 Workers 路由
+[[routes]]
+pattern = "mail.your-domain.com/*"
+custom_domain = true
