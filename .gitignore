@@ -21,6 +21,10 @@ Thumbs.db
 *.log
 /tmp/
 
-# 本地检查脚本（不上传）
+# 本地运维脚本（含 token 逻辑，绝不上传）
 *-check.sh
 check-local*
+push*.sh
+verify-*.sh
+deploy*.sh
+deploy*.py
