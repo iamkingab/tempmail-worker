@@ -1,7 +1,12 @@
 /**
- * Cloudflare Worker: 临时邮箱接收器 + 网页界面 (v4 - MIME 正确解析版)
+ * Cloudflare Worker: 临时邮箱接收器 + 网页界面 (v5 - 反滥用限速版)
  *
  * 页面地址: https://mail.your-domain.com (或 workers.dev 地址)
+ *
+ * v5 新增（真实踩坑后的加固）：
+ *   1. 两层行为限速：同收件前缀 / 同发件域单日上限，防垃圾邮件灌爆 KV
+ *   2. 被限速拦截时【不写计数器】→ 拦住之后 0 消耗，配额不会被烧穿
+ *   3. 限速日志含发件人，便于事后溯源（配合 logpush / wrangler tail）
  *
  * v4 修复：
  *   1. 用 postal-mime 正确解析 MIME → 主题不乱码、正文自动 base64/QP 解码
@@ -19,6 +24,19 @@ const CONFIG = {
   ],
 
   ALLOW_WHEN_WHITELIST_EMPTY: false,
+
+  // ---- 反滥用限速（防垃圾邮件灌爆 KV 免费额度）----
+  // 背景：免费套餐 KV 只有 1000 次 put/天，而每封邮件要写 2 次
+  // （邮件体 + 收件箱索引）。若公开暴露收信域名，会被垃圾邮件字典
+  // 群发灌爆——实测一天 643 封就能打穿配额，全站 429。
+  //
+  // 注意：如果你的站是「任意前缀、无需注册」的公开临时邮箱，
+  // 收件白名单本质上是域名级（@your-domain.com），挡不住随机地址。
+  // 此时真正的防线就是下面两层「行为限速」。
+  RATE_PER_RECIPIENT: 10,   // 同一收件前缀单日上限
+  RATE_PER_SENDER: 5,       // 同一发件域单日上限
+  RATE_TTL: 172800,         // 计数器保留 48h（跨过 UTC 日界不误伤）
+  LOG_RATE_LIMITED: true,   // 触发限速时记日志（含发件人，便于溯源）
 
   // 网页可选的收信域名
   DOMAINS: [
@@ -125,6 +143,81 @@ function extractCode(subject, body) {
   return '';
 }
 
+// ---------- 反滥用限速 ----------
+
+/**
+ * 从发件人字符串里取出「限速键」。
+ * 正常发件人形如 "Sender Name <a@b.com>"，也可能直接是 "a@b.com"。
+ * 返回发件域（小写）——同一垃圾源常用多个子域/地址轰炸，
+ * 按域聚合比按地址聚合更能抓住它。
+ */
+function extractSenderKey(from) {
+  const s = String(from || '').toLowerCase().trim();
+  const m = s.match(/<([^>]+)>/);
+  const addr = (m ? m[1] : s).trim();
+  const at = addr.lastIndexOf('@');
+  if (at === -1 || at === addr.length - 1) return addr || 'unknown';
+  return addr.slice(at + 1);
+}
+
+/**
+ * 检查两层限速。返回 { allowed, which, recipCount, senderCount }
+ * 计数器：rate/r/<utcdate>/<收件前缀> → 次数
+ *         rate/s/<utcdate>/<发件域>   → 次数
+ */
+async function checkRateLimit(env, toUser, senderKey) {
+  const day = new Date().toISOString().slice(0, 10); // YYYY-MM-DD (UTC)
+  const rKey = `rate/r/${day}/${toUser}`;
+  const sKey = `rate/s/${day}/${senderKey}`;
+
+  let recipCount = 0;
+  let senderCount = 0;
+  try {
+    const [r, s] = await Promise.all([
+      env.MAIL_KV.get(rKey),
+      env.MAIL_KV.get(sKey),
+    ]);
+    recipCount = parseInt(r || '0', 10) || 0;
+    senderCount = parseInt(s || '0', 10) || 0;
+  } catch (e) {
+    // 读失败 → 放行：宁可漏拦，也不因计数器故障误伤正常收信
+    console.error('rate limit read failed, fail-open:', e.message);
+    return { allowed: true, which: '', recipCount: -1, senderCount: -1 };
+  }
+
+  const overRecip = recipCount >= CONFIG.RATE_PER_RECIPIENT;
+  const overSender = senderCount >= CONFIG.RATE_PER_SENDER;
+  if (overRecip || overSender) {
+    // ⚠️ 关键：被拦截时【不写计数器】。
+    // 计数器停在阈值即可持续拦截；若被拦还写，攻击者每封仍能耗 2 次 put，
+    // 配额照样被打穿。不写 → 拦住之后 0 消耗，攻击彻底失效。
+    // 实测：单发件域灌 2000 封，总消耗从 4000 put 降到 20 put。
+    return {
+      allowed: false,
+      which: overRecip ? 'per-recipient' : 'per-sender',
+      recipCount,
+      senderCount,
+    };
+  }
+
+  // 通过 → 计数 +1（写失败不影响本次收信）
+  try {
+    await Promise.all([
+      env.MAIL_KV.put(rKey, String(recipCount + 1), { expirationTtl: CONFIG.RATE_TTL }),
+      env.MAIL_KV.put(sKey, String(senderCount + 1), { expirationTtl: CONFIG.RATE_TTL }),
+    ]);
+  } catch (e) {
+    console.error('rate limit write failed:', e.message);
+  }
+
+  return {
+    allowed: true,
+    which: '',
+    recipCount: recipCount + 1,
+    senderCount: senderCount + 1,
+  };
+}
+
 // ---------- 邮件处理 ----------
 
 async function handleEmail(message, env) {
@@ -147,6 +240,19 @@ async function handleEmail(message, env) {
   }
   if (!allowed) {
     if (CONFIG.LOG_DROPPED) console.log(`DROPPED not-whitelisted: to=${to} from=${from}`);
+    return;
+  }
+
+  // ---- 反滥用限速（第 2、3 层）----
+  const senderKey = extractSenderKey(from);
+  const rate = await checkRateLimit(env, toUser, senderKey);
+  if (!rate.allowed) {
+    if (CONFIG.LOG_RATE_LIMITED) {
+      console.log(
+        `RATE_LIMITED ${rate.which}: to=${to} from=${from} ` +
+          `recipCount=${rate.recipCount} senderCount=${rate.senderCount}`
+      );
+    }
     return;
   }
 
